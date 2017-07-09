@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <img src="./picture.png" alt="">
+    <div>
+         <input type="text" class="node1" placeholder="请输入起点">
+         <input type="text" class="node2" placeholder="请输入终点">
+         <button class="btn">查询最短路径</button>
+    </div>
+    <div>
+        最短路径为：
+        <p class="result"></p>
+    </div>
+   
+    <script>
+        //创建栈类
+         function Stack(){
+            var items = [];
+            this.push = function(element){
+                items.push(element)
+            };
+            this.pop = function(){
+                return items.pop()
+            };
+            this.peek = function(){
+                return items[items.length-1]
+            };
+            this.isEmpty = function(){
+                return items.length === 0;
+            };
+        }
+        //创建队列类
+        function Queue() {
+            var items = [];
+            this.enqueue = function (element) {
+                items.push(element)
+            }
+            this.dequeue = function () {
+                return items.shift()
+            };
+            this.isEmpty = function () {
+                return items.length === 0;
+            };
+        }
+        //创建字典类
+        function Dictionary() {
+            var items = {};
+            this.has = function (key) {
+                return key in items;
+            };
+            this.set = function (key, value) {
+                items[key] = value;
+            };
+
+            this.get = function (key) {
+                return this.has(key) ? items[key] : undefined;
+            };
+        };
+        //创建图类
+        function Graph() {
+            var vertices = [];//存储顶点
+            var adjList = new Dictionary();//存储领接表
+            //初始化所有顶点颜色
+            var initializeColor = function () {
+                var color = [];
+                for (var i = 0; i < vertices.length; i++) {
+                    color[vertices[i]] = 'white';
+                }
+                return color;
+            };
+            //添加顶点、并用一个空数组来准备保存相邻的点
+            this.addVertex = function (v) {
+                vertices.push(v);
+                adjList.set(v, []);
+            };
+            //为顶点添加边
+            this.addEdge = function (v, w) {
+                adjList.get(v).push(w);
+                adjList.get(w).push(v);
+            };
+            //广度优先搜索，通过将顶点存入队列中，最先如队列的顶点先被搜索；用颜色标注访问状态；
+            //白色表示顶点未被访问
+            //灰色表示顶点被访问过，但未被搜索
+            //黑色表示被访问且被搜索
+            this.BFS = function (v) {
+                var color = initializeColor(),
+                    queue = new Queue(),
+                    d = [], //表示距离
+                    pred = []; //表示前溯点
+                queue.enqueue(v);
+
+                for (var i = 0; i < vertices.length; i++) {
+                    d[vertices[i]] = 0;
+                    pred[vertices[i]] = null;
+                }
+            
+                while (!queue.isEmpty()) {
+                    var u = queue.dequeue(),
+                        neighbors = adjList.get(u);
+                    color[u] = 'grey';
+                    for (var i = 0; i < neighbors.length; i++) {
+                        var w = neighbors[i];
+                        if (color[w] === 'white') {
+                            color[w] = 'grey';
+                            d[w] = d[u] + 1;                           
+                            pred[w] = u;
+                            queue.enqueue(w);                          
+                        }                
+                    }
+                    color[u] = 'black';              
+                }
+                return {
+                        distances: d,
+                        predecessors: pred
+                    }
+            }
+        }
+      
+        //创建图的实例
+        var graph = new Graph();
+        //添加点
+        var myVertices = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I','J','K','L','N','O','P','Q','R','S','T'];
+        for (var i = 0; i < myVertices.length; i++) {
+            graph.addVertex(myVertices[i]);
+        };
+        //为每个点添加相邻的点
+        graph.addEdge('A', 'B');
+        graph.addEdge('A', 'C');
+        graph.addEdge('A', 'D');
+        graph.addEdge('B', 'E');
+        graph.addEdge('B', 'F');
+        graph.addEdge('B', 'G');
+        graph.addEdge('F', 'K');
+        graph.addEdge('F', 'L');
+        graph.addEdge('F', 'N');
+        graph.addEdge('N', 'R');
+        graph.addEdge('N', 'S');
+        graph.addEdge('N', 'T');
+        graph.addEdge('D', 'H');
+        graph.addEdge('D', 'I');
+        graph.addEdge('D', 'J');
+        graph.addEdge('H', 'O');
+        graph.addEdge('H', 'P');
+        graph.addEdge('H', 'Q');
+      
+
+        //求最短路径
+        function shortPath(nodeA,nodeB){
+            var shortestPathA = graph.BFS(nodeA);
+            var fromVertex = nodeA;
+            var toVertex = nodeB,
+                path = new Stack();
+            for(var v =toVertex; v!==fromVertex; v=shortestPathA.predecessors[v]){
+                path.push(v);
+            }
+            path.push(fromVertex);
+            var s = path.pop();
+            while(!path.isEmpty()){
+                s += '->' +path.pop();
+            }
+            console.log(s);
+            return s;
+        }  
+       //测试
+       //nodeA=T , nodeB=Q
+       shortPath('T','Q')//T->N->F->B->A->D->H->Q
+       //nodeA=G , nodeB=R
+       shortPath('G','R')//G->B->F->N->R
+       //nodeA=A , nodeB=T
+       shortPath('A','T')//A->B->F->N->T
+
+       var btn = document.querySelector('.btn');
+       var result = document.querySelector('.result')
+       btn.onclick = function(){
+        var node1 = document.querySelector('.node1').value.toUpperCase();
+        var node2 = document.querySelector('.node2').value.toUpperCase();
+        var path = shortPath(node1,node2)
+        result.innerHTML = path;
+       }
+    </script>
+</body>
+
+</html>
