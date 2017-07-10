@@ -86,6 +86,13 @@
                 adjList.get(v).push(w);
                 adjList.get(w).push(v);
             };
+            this.isVertices =function (v){
+                if(vertices.indexOf(v)===-1){
+                    return false; 
+                }else{
+                    return true
+                }
+            }
             //广度优先搜索，通过将顶点存入队列中，最先如队列的顶点先被搜索；用颜色标注访问状态；
             //白色表示顶点未被访问
             //灰色表示顶点被访问过，但未被搜索
@@ -154,6 +161,9 @@
 
         //求最短路径
         function shortPath(nodeA,nodeB){
+            if(!graph.isVertices(nodeA)){
+                return '你输入的位置不存在，请重新输入图上已存在点的位置！'
+            }
             var shortestPathA = graph.BFS(nodeA);
             var fromVertex = nodeA;
             var toVertex = nodeB,
