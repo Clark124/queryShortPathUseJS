@@ -162,7 +162,10 @@
         //求最短路径
         function shortPath(nodeA,nodeB){
             if(!graph.isVertices(nodeA)){
-                return '你输入的位置不存在，请重新输入图上已存在点的位置！'
+                return '你输入的起点位置不存在，请重新输入图上已存在点的位置！'
+            }
+            if(!graph.isVertices(nodeB)){
+                return '你输入的终点位置不存在，请重新输入图上已存在点的位置！'
             }
             var shortestPathA = graph.BFS(nodeA);
             var fromVertex = nodeA;
